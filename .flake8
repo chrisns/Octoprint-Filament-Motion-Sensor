@@ -1,0 +1,21 @@
+[flake8]
+max-line-length = 120
+extend-ignore = 
+    E203,  # whitespace before ':'
+    W503,  # line break before binary operator
+    E501,  # line too long (handled by black)
+exclude = 
+    .git,
+    __pycache__,
+    .pytest_cache,
+    .coverage,
+    htmlcov,
+    dist,
+    build,
+    *.egg-info
+per-file-ignores =
+    tests/*:F401,F811  # Allow unused imports in tests
+    conftest.py:F401,F811  # Allow unused imports in conftest
+max-complexity = 10
+import-order-style = google
+application-import-names = octoprint_filamentmotionsensor 
