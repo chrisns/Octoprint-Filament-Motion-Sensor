@@ -1,6 +1,9 @@
 # Octoprint-Filament-Motion-Sensor
 
-
+[![Test Suite](https://github.com/chrisns/Octoprint-Filament-Motion-Sensor/workflows/Test%20Suite/badge.svg)](https://github.com/chrisns/Octoprint-Filament-Motion-Sensor/actions/workflows/test.yml)
+[![PR Check](https://github.com/chrisns/Octoprint-Filament-Motion-Sensor/workflows/Pull%20Request%20Check/badge.svg)](https://github.com/chrisns/Octoprint-Filament-Motion-Sensor/actions/workflows/pr-check.yml)
+[![codecov](https://codecov.io/gh/chrisns/Octoprint-Filament-Motion-Sensor/branch/master/graph/badge.svg)](https://codecov.io/gh/chrisns/Octoprint-Filament-Motion-Sensor)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 
 
 An [OctoPrint](http://octoprint.org/) plugin for filament motion sensor connected directly to RaspberryPi's GPIO pin.
@@ -76,6 +79,56 @@ The custom GCode managed by the plugin is only run when a print is paused due to
 * Telegram notifications.
 * A simplified DIY sensor
 * Support of multiple sensors for multiextruders. Depending on the demand.
+
+## Development
+
+### Testing
+This plugin includes a comprehensive test suite with 200+ tests ensuring code quality and preventing regressions.
+
+#### Running Tests Locally
+```bash
+# Install test dependencies and run all tests
+python run_tests.py --install
+
+# Run specific test types
+python run_tests.py --type unit          # Unit tests only
+python run_tests.py --type integration   # Integration tests only  
+python run_tests.py --type fast          # Quick tests only
+
+# Run with code quality checks
+python run_tests.py --lint               # Include linting
+python run_tests.py --coverage-report    # Generate coverage report
+```
+
+#### Code Quality Tools
+```bash
+# Format code
+black octoprint_filamentmotionsensor/ tests/
+isort octoprint_filamentmotionsensor/ tests/
+
+# Check linting
+flake8 octoprint_filamentmotionsensor/ tests/
+
+# Security scanning
+bandit -r octoprint_filamentmotionsensor/
+safety check
+```
+
+### CI/CD Pipeline
+- **Automated testing** on Python 3.7-3.11 across Ubuntu, Windows, and macOS
+- **Code coverage** minimum 80% required for PRs
+- **Security scanning** with bandit and safety
+- **Automated releases** on version tags
+- **Dependency updates** via Dependabot every Monday
+
+### Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for any new functionality
+4. Ensure all tests pass and coverage remains above 80%
+5. Submit a pull request
+
+The CI pipeline will automatically run comprehensive checks on your PR including tests, coverage analysis, code formatting, linting, and security scanning.
 
 ## Contact
 * [Issues](https://github.com/tabahi/Octoprint-Smart-Filament-Sensor/issues)
