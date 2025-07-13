@@ -39,6 +39,13 @@ To use this plugin a Filament Sensor needs to be sending a toggling digital sign
 * Install via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wiki/Plugin:-Plugin-Manager).
 * Manual install: Scroll down the "Get more" menu in Plugin Manager, Use this URL: https://github.com/tabahi/Octoprint-Smart-Filament-Sensor/archive/master.zip
 
+When installing from source you can include optional interfaces with pip extras, e.g.:
+
+```bash
+pip install "Octoprint-Filament-Motion-Sensor[gpiod]"
+pip install "Octoprint-Filament-Motion-Sensor[mcp2221]"
+```
+
 
 After installation a restart of Octoprint is required.
 

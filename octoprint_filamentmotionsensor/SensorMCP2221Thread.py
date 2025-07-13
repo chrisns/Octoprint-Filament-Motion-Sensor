@@ -7,17 +7,11 @@ except Exception:  # pragma: no cover - optional dependency
     PyMCP2221A = None
 
 
-# Helper used in __init__ to check if the MCP2221A device is available
+# Helper used by __plugin_check__ to verify the MCP2221A dependency
 
 def plugin_check_mcp2221():
-    if PyMCP2221A is None:
-        return False
-    try:
-        dev = PyMCP2221A.PyMCP2221A()
-        dev.DetectDevice()
-        return True
-    except Exception:
-        return False
+    """Return True if the PyMCP2221A library is available."""
+    return PyMCP2221A is not None
 
 
 class MotionSensorMCP2221Thread(threading.Thread):
