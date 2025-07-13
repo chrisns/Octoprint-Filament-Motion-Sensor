@@ -7,8 +7,12 @@ from octoprint.events import Events
 #from datetime import datetime
 import time
 import flask
-from .SensorGPIOThread import MotionSensorGPIOThread
-from .SensorGPIOThread import plugin_check_rpi_gpio
+try:
+    from .SensorGPIOThread import MotionSensorGPIOThread, plugin_check_rpi_gpio
+except Exception:  # pragma: no cover - optional dependency might be missing
+    MotionSensorGPIOThread = None
+    def plugin_check_rpi_gpio():
+        return False
 try:
     from .SensorMCP2221Thread import MotionSensorMCP2221Thread, plugin_check_mcp2221
 except Exception:  # pragma: no cover - optional dependency might be missing
@@ -779,7 +783,6 @@ def __plugin_load__():
 
 def __plugin_check__():
     try:
-        import gpiod
         if plugin_check_rpi_gpio():
             return True
     except Exception:

@@ -34,7 +34,13 @@ plugin_url = "https://github.com/tabahi/Octoprint-Filament-Motion-Sensor"
 plugin_license = "AGPLv3"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ['gpiod>=2.0.2', 'PyMCP2221A>=0.5.0']
+plugin_requires = []
+
+# Optional interfaces
+plugin_extras = {
+    'gpiod': ['gpiod>=2.0.2'],
+    'mcp2221': ['PyMCP2221A>=0.5.0'],
+}
 
 # --------------------------------------------------------------------------------------------------------------------
 # More advanced options that you usually shouldn't have to touch follow after this point
@@ -58,7 +64,9 @@ plugin_ignored_packages = []
 # Example:
 #     plugin_requires = ["someDependency==dev"]
 #     additional_setup_parameters = {"dependency_links": ["https://github.com/someUser/someRepo/archive/master.zip#egg=someDependency-dev"]}
-additional_setup_parameters = {}
+additional_setup_parameters = {
+    'extras_require': plugin_extras,
+}
 
 ########################################################################################################################
 
