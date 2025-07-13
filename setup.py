@@ -34,7 +34,7 @@ plugin_url = "https://github.com/tabahi/Octoprint-Filament-Motion-Sensor"
 plugin_license = "AGPLv3"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ['gpiod>=2.0.2']
+plugin_requires = ['gpiod>=2.0.2', 'PyMCP2221A>=0.5.0']
 
 # --------------------------------------------------------------------------------------------------------------------
 # More advanced options that you usually shouldn't have to touch follow after this point

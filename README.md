@@ -12,6 +12,7 @@ An [OctoPrint](http://octoprint.org/) plugin for filament motion sensor connecte
 Main updates - August 2024:
 - Removed RPi.GPIO requirements, replaced it with libgpiod.
 - Only one mode that uses both the distance and the timeout together.
+- Added optional support for MCP2221A USB GPIO adapters.
 
 ## Required sensor
 
@@ -44,7 +45,8 @@ After installation a restart of Octoprint is required.
 
 ### Installation Requirements
 - Python>3.8
-- [gpiod>=2.0.2](https://pypi.org/project/gpiod/) installed in Octoprint environment.
+- [gpiod>=2.0.2](https://pypi.org/project/gpiod/) installed in Octoprint environment for Raspberry Pi setups.
+- [PyMCP2221A](https://pypi.org/project/PyMCP2221A/) for USB MCP2221A adapters on other platforms.
 
 It has been tested with RPi5 running [octoprint_deploy 1.0.11](https://github.com/paukstelis/octoprint_deploy) and Zero2w running Octopi1.0 image. You are welcome to raise issues for untested environments.
 
@@ -53,6 +55,9 @@ It has been tested with RPi5 running [octoprint_deploy 1.0.11](https://github.co
 ### GPIO Pin
 * Choose any free GPIO pin you for data usage, but I would recommend to use GPIO pins without special functionalities like e.g. I2C
 * Run the sensor only on 3.3V, because GPIO pins don't like 5V for a long time
+
+### Interface Selection
+* Set the interface to `gpiod` for Raspberry Pi GPIO or `mcp2221` when using the USB adapter. `auto` will pick whichever is available.
 
 ### Pausing Limits
 A print can be paused due to two limits when the filament is not moving:

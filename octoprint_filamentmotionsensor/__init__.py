@@ -9,6 +9,12 @@ import time
 import flask
 from .SensorGPIOThread import MotionSensorGPIOThread
 from .SensorGPIOThread import plugin_check_rpi_gpio
+try:
+    from .SensorMCP2221Thread import MotionSensorMCP2221Thread, plugin_check_mcp2221
+except Exception:  # pragma: no cover - optional dependency might be missing
+    MotionSensorMCP2221Thread = None
+    def plugin_check_mcp2221():
+        return False
 from .data import FilamentMotionSensorDetectionData
 import os.path
 _debug_in_terminal = False # send debug messages in Gcode terminal
@@ -58,8 +64,9 @@ class FilamentMotionSensor(octoprint.plugin.StartupPlugin,
         self.t0_temp = -255
         self.last_temp_time = 0
         self.hook_it = True
-        
+
         self._data = FilamentMotionSensorDetectionData(self.motion_sensor_detection_distance, True, self.updateToUi)
+        self._sensor_interface = None
 #Properties
     @property
     def motion_sensor_pin(self):
@@ -72,6 +79,10 @@ class FilamentMotionSensor(octoprint.plugin.StartupPlugin,
     @property
     def detection_method(self):
         return int(self._settings.get(["detection_method"]))
+
+    @property
+    def sensor_interface(self):
+        return self._settings.get(["sensor_interface"])
 
     @property
     def motion_sensor_enabled(self):
@@ -120,7 +131,7 @@ class FilamentMotionSensor(octoprint.plugin.StartupPlugin,
 
 # Initialization methods
     def _setup_sensor(self):
-        
+
         self._logger.info("Using BCM Mode ONLY")
         
         if self.motion_sensor_enabled == False:
@@ -130,6 +141,13 @@ class FilamentMotionSensor(octoprint.plugin.StartupPlugin,
         self.motion_sensor_thread = None
 
         self.load_filament_sensor_data()
+        self._sensor_interface = None
+        if self.sensor_interface == "gpiod" or (self.sensor_interface == "auto" and plugin_check_rpi_gpio()):
+            self._sensor_interface = "gpiod"
+        elif self.sensor_interface == "mcp2221" or (self.sensor_interface == "auto" and plugin_check_mcp2221()):
+            self._sensor_interface = "mcp2221"
+        if self._sensor_interface is None:
+            self._logger.warning("No compatible GPIO interface detected")
 
 
     def load_filament_sensor_data(self):
@@ -138,6 +156,7 @@ class FilamentMotionSensor(octoprint.plugin.StartupPlugin,
     def on_after_startup(self):
         self._logger.info("Filament Motion Sensor started")
         self._setup_sensor()
+        self._logger.info("Sensor interface: %s" % (self._sensor_interface or "none"))
 
     def get_settings_defaults(self):
         return dict(
@@ -146,6 +165,7 @@ class FilamentMotionSensor(octoprint.plugin.StartupPlugin,
             motion_sensor_enabled = True, #Sensor detection is enabled by default
             motion_sensor_pin=-1,  # Default is no pin
             detection_method = 0, # 0 = timeout detection, 1 = distance detection
+            sensor_interface="auto",
 
             # Distance detection
             motion_sensor_detection_distance = 7, # Recommended detection distance from Marlin would be 7
@@ -195,8 +215,12 @@ class FilamentMotionSensor(octoprint.plugin.StartupPlugin,
         except: self.motion_sensor_thread  = None
         
         if(self.motion_sensor_thread is None):
-            self.motion_sensor_thread = MotionSensorGPIOThread(1, "ConnectionTest", self.motion_sensor_pin,
-                CONNECTION_TEST_TIME, self._logger, self._data, pCallback=self.connectionTestCallback)
+            if self._sensor_interface == "mcp2221" and MotionSensorMCP2221Thread:
+                self.motion_sensor_thread = MotionSensorMCP2221Thread(1, "ConnectionTest", self.motion_sensor_pin,
+                    CONNECTION_TEST_TIME, self._logger, self._data, pCallback=self.connectionTestCallback)
+            else:
+                self.motion_sensor_thread = MotionSensorGPIOThread(1, "ConnectionTest", self.motion_sensor_pin,
+                    CONNECTION_TEST_TIME, self._logger, self._data, pCallback=self.connectionTestCallback)
             self.motion_sensor_thread.start()
             self._data.connection_test_running = True
             self._logger.info("Connection test monitor started. Thread name:" + str(self.motion_sensor_thread.name ))
@@ -227,9 +251,12 @@ class FilamentMotionSensor(octoprint.plugin.StartupPlugin,
             if self.motion_sensor_thread == None:
                 self._logger.debug("Max Timeout: " + str(self.motion_sensor_max_not_moving))
 
-                
-                self.motion_sensor_thread = MotionSensorGPIOThread(1, "MotionSensorTimeoutDetectionThread", self.motion_sensor_pin,
-                    not_moving_return_seconds, self._logger, self._data, pCallback=self.sensor_event_callback)
+                if self._sensor_interface == "mcp2221" and MotionSensorMCP2221Thread:
+                    self.motion_sensor_thread = MotionSensorMCP2221Thread(1, "MotionSensorTimeoutDetectionThread", self.motion_sensor_pin,
+                        not_moving_return_seconds, self._logger, self._data, pCallback=self.sensor_event_callback)
+                else:
+                    self.motion_sensor_thread = MotionSensorGPIOThread(1, "MotionSensorTimeoutDetectionThread", self.motion_sensor_pin,
+                        not_moving_return_seconds, self._logger, self._data, pCallback=self.sensor_event_callback)
                 # Start Timeout_Detection thread
                 self.motion_sensor_thread.start()
                 
@@ -753,13 +780,12 @@ def __plugin_load__():
 def __plugin_check__():
     try:
         import gpiod
-    except ImportError:
-        return False
+        if plugin_check_rpi_gpio():
+            return True
+    except Exception:
+        pass
 
-    try:
-        if (plugin_check_rpi_gpio()==False): return False
-    except:
-        return False
+    if plugin_check_mcp2221():
+        return True
 
-
-    return True
+    return False
