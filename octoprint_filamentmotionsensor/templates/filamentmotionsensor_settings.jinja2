@@ -21,12 +21,23 @@
         <div class="control-group">
             <label class="control-label">{{ _('Motion Sensor GPIO Pin:') }}</label>
             <div class="controls" data-toggle="tooltip" title="{{ _('Which Raspberry Pi GPIO pin your switch is attached to (-1 disables the plugin)') }}">
-                <input type="text" step="any" min="0" class="input-mini text-right" data-bind="enable: enableCriticalSettings, value: settingsViewModel.settings.plugins.filamentmotionsensor.motion_sensor_pin"> 
+                <input type="text" step="any" min="0" class="input-mini text-right" data-bind="enable: enableCriticalSettings, value: settingsViewModel.settings.plugins.filamentmotionsensor.motion_sensor_pin">
             </div>
             
             <span class="help-block"><small>Refer to <a href="https://pinout.xyz/ ">pinout.xyz</a> for pinout. Use the BCM number after GPIO-?. e.g. GPIO 21 is the last pin. Prefer 17.</small></span>
             <button class="btn btn-primary span4" data-bind="enable: enableCriticalSettings, click: function() { showConnectionTest(); }" title="{{ _('Start sensor connection test')|edq }}">Test sensor</button>
             
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">{{ _('Sensor Interface:') }}</label>
+            <div class="controls" data-toggle="tooltip" title="{{ _('Select GPIO library. Auto chooses gpiod or MCP2221 if available.') }}">
+                <select class="select-mini" data-bind="value: settingsViewModel.settings.plugins.filamentmotionsensor.sensor_interface">
+                    <option value="auto">auto</option>
+                    <option value="gpiod">gpiod</option>
+                    <option value="mcp2221">mcp2221</option>
+                </select>
+            </div>
         </div>
 
 
